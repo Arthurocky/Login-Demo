@@ -1,7 +1,7 @@
 package com.loki.Login.service;
 
-import com.loki.Login.bean.User;
 import com.loki.Login.mapper.UserMapper;
+import com.loki.Login.model.User;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

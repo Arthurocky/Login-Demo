@@ -1,9 +1,9 @@
-package generator.service.impl;
+package com.loki.Login.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import generator.domain.User;
-import generator.service.UserService;
-import generator.mapper.UserMapper;
+import com.loki.Login.model.User;
+import com.loki.Login.service.UserService;
+import com.loki.Login.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 
 /**

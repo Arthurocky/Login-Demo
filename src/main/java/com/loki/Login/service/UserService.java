@@ -1,7 +1,7 @@
-package generator.service;
+package com.loki.Login.service;
 
-import generator.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.loki.Login.model.User;
 
 /**
 * @author Arthurocky

@@ -1,11 +1,13 @@
 package com.loki.Login.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.loki.Login.mapper.UserMapper;
 import com.loki.Login.model.User;
 import com.loki.Login.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +46,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return -1;
         }
 
-        if (!userPassword.equals(checkPassword)){
+        if (!userPassword.equals(checkPassword)) {
             return -1;
         }
 
@@ -55,13 +57,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return -1;
         }
 
-        User user = this.getById(userCode);
-        if (user == null) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUserCode, userCode);
+        int count = this.count(wrapper);
+        if (count == 0) {
             return -1;
         }
 
+        //加密
+        final String SALT = "SALT+LOKI";
+        String newPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        System.out.println(newPassword);
 
-        return 0;
+        //插入数据
+        User user1 = new User();
+        user1.setUserAccount(userAccount);
+        user1.setUserPassword(newPassword);
+        boolean save = this.save(user1);
+        if (!save) {
+            return -1;
+        }
+        return user1.getId();
     }
 }
 

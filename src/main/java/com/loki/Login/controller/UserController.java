@@ -1,5 +1,7 @@
 package com.loki.Login.controller;
 
+import com.loki.Login.model.User;
+import com.loki.Login.model.dao.UserLoginDao;
 import com.loki.Login.model.dao.UserRegisterDao;
 import com.loki.Login.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 用户接口
@@ -39,5 +42,23 @@ public class UserController {
         }
         long register = userService.userRegister(userAccount, userPassword, checkPassword, userCode);
         return register;
+    }
+
+    /**
+     * 登录
+     */
+    @PostMapping("/login")
+    public User userLogin(@RequestBody UserLoginDao userLoginDao, HttpServletRequest request)
+    {
+        if (userLoginDao == null) {
+            return null;
+        }
+        String userAccount = userLoginDao.getUserAccount();
+        String userPassword = userLoginDao.getUserPassword();
+        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
+        User user = userService.userLogin(userAccount, userPassword, request);
+        return user;
     }
 }

@@ -42,7 +42,7 @@ public class UserServiceTest {
 
     @Test
     void userRegister() {
-        String userAccount = "loki";
+        String userAccount = "arthurocky";
         String userPassword = "123456789";
         String checkPassword = "123456789";
         String planetCode = "2";
@@ -51,7 +51,7 @@ public class UserServiceTest {
         userAccount = "lk";
         result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         Assertions.assertEquals(-1, result);
-        userAccount = "loki";
+        userAccount = "arthurocky";
         userPassword = "123456";
         result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         Assertions.assertEquals(-1, result);
@@ -66,7 +66,7 @@ public class UserServiceTest {
         checkPassword = "12345678";
         result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         Assertions.assertEquals(-1, result);
-        userAccount = "loki";
+        userAccount = "arthurocky";
         result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
         Assertions.assertEquals(-1, result);
     }

@@ -59,8 +59,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUserCode, userCode);
-        int count = this.count(wrapper);
-        if (count == 0) {
+        User user = this.getOne(wrapper);
+        /*int count = this.count(wrapper);
+        if (count == 0) {*/
+        if (user != null) {
             return -1;
         }
 

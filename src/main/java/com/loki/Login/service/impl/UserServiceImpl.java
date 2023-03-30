@@ -5,12 +5,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.loki.Login.mapper.UserMapper;
 import com.loki.Login.model.User;
 import com.loki.Login.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.loki.Login.common.Basecontant.SALT;
 
 /**
  * @author Arthurocky
@@ -18,6 +22,7 @@ import java.util.regex.Pattern;
  * @createDate 2023-03-05 23:07:40
  */
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
 
@@ -67,7 +72,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         //加密
-        final String SALT = "SALT+LOKI";
         String newPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         System.out.println(newPassword);
 
@@ -81,6 +85,56 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         return user1.getId();
     }
+
+
+    /**
+     * 用户登录
+     *
+     * @param userAccount  用户账户
+     * @param userPassword 用户密码
+     * @param request
+     * @return 脱敏后的用户信息
+     */
+    @Override
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request)
+    {
+        //校验是否为空
+        /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
+        }*/
+        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
+        if (userAccount.length() < 4) {
+            return null;
+        }
+
+        if (userPassword.length() < 8) {
+            return null;
+        }
+
+        // 账户不能包含特殊字符
+        String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()) {
+            return null;
+        }
+
+        //加密
+        String newPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+
+        //用户是否存在
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUserAccount, userAccount);
+        wrapper.eq(User::getUserPassword, newPassword);
+        User user = this.getOne(wrapper);
+        if (user == null) {
+            log.info("login error: userAccount cannot be find");
+            return null;
+        }
+        return user;
+
+    }
+
 }
 
 

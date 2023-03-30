@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.loki.Login.common.Basecontant.SALT;
+import static com.loki.Login.common.Basecontant.USER_LOGIN_STATE;
 
 /**
  * @author Arthurocky
@@ -131,8 +132,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("login error: userAccount cannot be find");
             return null;
         }
-        return user;
 
+        //脱敏
+        User safetyUser = getSafetyUser(user);
+        //记录状态
+        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
+        return safetyUser;
+
+    }
+
+
+    /**
+     * 用户脱敏
+     * @param originUser 对象
+     * @return 脱敏后的对象
+     */
+    @Override
+    public User getSafetyUser(User originUser)
+    {
+        if (originUser == null) {
+            return null;
+        }
+        User newUser = new User();
+        //设置返回的数据
+        newUser.setId(newUser.getId());
+        newUser.setUsername(newUser.getUsername());
+        newUser.setUserAccount(newUser.getUserAccount());
+        newUser.setAvatarUrl(newUser.getAvatarUrl());
+
+        newUser.setGender(newUser.getGender());
+        newUser.setPhone(newUser.getPhone());
+        newUser.setEmail(newUser.getEmail());
+        newUser.setUserCode(newUser.getUserCode());
+        newUser.setUserRole(newUser.getUserRole());
+
+        newUser.setUserStatus(newUser.getUserStatus());
+        newUser.setCreateTime(newUser.getCreateTime());
+        return newUser;
     }
 
 }

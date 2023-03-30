@@ -7,4 +7,8 @@ public class Basecontant {
      */
     public static final String SALT = "SALT+LOKI";
 
+    /**
+     * 用户登录态键
+     */
+    public static final String USER_LOGIN_STATE = "userLoginState";
 }

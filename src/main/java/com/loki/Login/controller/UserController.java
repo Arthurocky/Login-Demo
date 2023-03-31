@@ -5,13 +5,11 @@ import com.loki.Login.model.dao.UserLoginDao;
 import com.loki.Login.model.dao.UserRegisterDao;
 import com.loki.Login.service.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 用户接口
@@ -60,5 +58,42 @@ public class UserController {
         }
         User user = userService.userLogin(userAccount, userPassword, request);
         return user;
+    }
+
+
+    /**
+     * 搜索
+     *
+     * @param name 名字
+     * @return {@link List}<{@link User}>
+     */
+    @GetMapping("/search")
+    public List<User> search(String name){
+        List<User> list = userService.searchUser(name);
+        return list;
+    }
+
+
+    /**
+     * 删除用户
+     *
+     * @param id id
+     * @return {@link BaseResponse}<{@link Boolean}>
+     */
+    @DeleteMapping("/delete")
+    public Boolean deleteUser(@RequestBody long id) {
+        return userService.delete(id);
+    }
+
+
+    /**
+     * 你好连接测试
+     *
+     * @return {@link String}
+     */
+    @PostMapping("/hello")
+    public String hello()
+    {
+        return "Hello";
     }
 }

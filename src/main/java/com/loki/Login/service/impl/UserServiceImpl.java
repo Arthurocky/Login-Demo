@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -144,6 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      * 用户脱敏
+     *
      * @param originUser 对象
      * @return 脱敏后的对象
      */
@@ -169,6 +171,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         newUser.setUserStatus(newUser.getUserStatus());
         newUser.setCreateTime(newUser.getCreateTime());
         return newUser;
+    }
+
+    @Override
+    public List<User> searchUser(String name)
+    {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(User::getUsername, name);
+        List<User> list = this.list();
+        return list;
+    }
+
+    @Override
+    public Boolean delete(long id)
+    {
+        if (id <= 0) {
+            return false;
+        }
+        return this.delete(id);
     }
 
 }

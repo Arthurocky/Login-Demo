@@ -5,6 +5,7 @@ import com.loki.Login.model.User;
 import org.apache.ibatis.annotations.Param;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author Arthurocky
@@ -40,4 +41,22 @@ public interface UserService extends IService<User> {
      * @return 用户
      */
     User getSafetyUser(User originUser);
+
+
+    /**
+     * 搜索用户
+     *
+     * @param name 名字
+     * @return 用户列表
+     */
+    List<User> searchUser(String name);
+
+
+    /**
+     * 删除
+     *
+     * @param id id
+     * @return {@link Boolean}
+     */
+    Boolean delete(long id);
 }

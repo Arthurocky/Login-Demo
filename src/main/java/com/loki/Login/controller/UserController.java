@@ -1,5 +1,8 @@
 package com.loki.Login.controller;
 
+import com.loki.Login.common.ErrorCode;
+import com.loki.Login.common.Result;
+import com.loki.Login.exception.BusinessException;
 import com.loki.Login.model.User;
 import com.loki.Login.model.dao.UserLoginDao;
 import com.loki.Login.model.dao.UserRegisterDao;
@@ -26,7 +29,7 @@ public class UserController {
      * 注册
      */
     @PostMapping("/register")
-    public Long userRegister(@RequestBody UserRegisterDao userRegisterDao)
+    public Result<Long> userRegister(@RequestBody UserRegisterDao userRegisterDao)
     {
         if (userRegisterDao == null) {
             return null;
@@ -38,15 +41,14 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, userCode)) {
             return null;
         }
-        long register = userService.userRegister(userAccount, userPassword, checkPassword, userCode);
-        return register;
+        return userService.userRegister(userAccount, userPassword, checkPassword, userCode);
     }
 
     /**
      * 登录
      */
     @PostMapping("/login")
-    public User userLogin(@RequestBody UserLoginDao userLoginDao, HttpServletRequest request)
+    public Result<User> userLogin(@RequestBody UserLoginDao userLoginDao, HttpServletRequest request)
     {
         if (userLoginDao == null) {
             return null;
@@ -56,8 +58,7 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             return null;
         }
-        User user = userService.userLogin(userAccount, userPassword, request);
-        return user;
+        return userService.userLogin(userAccount, userPassword, request);
     }
 
 
@@ -68,7 +69,7 @@ public class UserController {
      * @return {@link List}<{@link User}>
      */
     @GetMapping("/search")
-    public List<User> search(String name ,HttpServletRequest request){
+    public Result<List<User>> search(String name , HttpServletRequest request){
         return userService.searchUser(name, request);
     }
 
@@ -80,7 +81,7 @@ public class UserController {
      * @return {@link Boolean}
      */
     @DeleteMapping("/delete")
-    public Boolean deleteUser(@RequestBody long id, HttpServletRequest request) {
+    public Result<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
         return userService.deleteUser(id, request);
     }
 
@@ -93,10 +94,10 @@ public class UserController {
      * @return int
      */
     @PostMapping("/logout")
-    public int userLogout(HttpServletRequest request)
+    public Result<Integer> userLogout(HttpServletRequest request)
     {
         if (request == null) {
-            return -1;
+            throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         return userService.userLogout(request);
     }

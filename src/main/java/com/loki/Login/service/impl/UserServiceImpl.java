@@ -209,6 +209,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return this.removeById(id);
     }
 
+    /**
+     * 用户注销
+     *
+     * @param request 请求
+     * @return {@link Integer}
+     */
+    @Override
+    public int userLogout(HttpServletRequest request)
+    {
+        //移除登录
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
+    }
+
 }
 
 

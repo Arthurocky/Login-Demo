@@ -86,6 +86,23 @@ public class UserController {
 
 
     /**
+     * 用户注销
+     *
+     *
+     * @param request 请求
+     * @return int
+     */
+    @PostMapping("/logout")
+    public int userLogout(HttpServletRequest request)
+    {
+        if (request == null) {
+            return -1;
+        }
+        return userService.userLogout(request);
+    }
+
+
+    /**
      * 你好连接测试
      *
      * @return {@link String}

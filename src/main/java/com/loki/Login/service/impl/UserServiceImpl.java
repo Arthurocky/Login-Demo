@@ -53,6 +53,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return -1;
         }
 
+        if (userCode.length() < 1) {
+            return -1;
+        }
+
         if (!userPassword.equals(checkPassword)) {
             return -1;
         }
@@ -70,6 +74,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         /*int count = this.count(wrapper);
         if (count == 0) {*/
         if (user != null) {
+            return -1;
+        }
+
+        LambdaQueryWrapper<User> wrapper2 = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUserAccount, userAccount);
+        long count = this.count(wrapper2);
+        if (count > 1) {
             return -1;
         }
 
@@ -195,7 +206,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public Boolean deleteUser(long id ,HttpServletRequest request)
+    public Boolean deleteUser(long id, HttpServletRequest request)
     {
         //仅管理员可删除
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
@@ -221,6 +232,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //移除登录
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
+    }
+
+
+    /**
+     * 获取当前用户
+     *
+     * @param request 请求
+     * @return {@link User}
+     */
+    @Override
+    public User getCurrentUser(HttpServletRequest request)
+    {
+        if (request == null) {
+            return null;
+        }
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User currentUser = (User) userObj;
+        if (currentUser == null) {
+            return null;
+        }
+        Long userId = currentUser.getId();
+        User user = this.getById(userId);
+        return this.getSafetyUser(user);
+
     }
 
 }

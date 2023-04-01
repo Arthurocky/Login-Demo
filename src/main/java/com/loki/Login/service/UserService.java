@@ -70,4 +70,12 @@ public interface UserService extends IService<User> {
      * @return {@link Integer}
      */
     int userLogout(HttpServletRequest request);
+
+    /**
+     * 获取当前用户
+     *
+     * @param request 请求
+     * @return {@link User}
+     */
+    User getCurrentUser(HttpServletRequest request);
 }

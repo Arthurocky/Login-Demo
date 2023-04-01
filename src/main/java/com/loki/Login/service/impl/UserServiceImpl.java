@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.loki.Login.common.ErrorCode;
 import com.loki.Login.common.Result;
+import com.loki.Login.exception.BusinessException;
 import com.loki.Login.mapper.UserMapper;
 import com.loki.Login.model.User;
 import com.loki.Login.service.UserService;
@@ -42,49 +43,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public Result<Long> userRegister(String userAccount, String userPassword, String checkPassword, String userCode)
     {
-        //校验是否为空
-        /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
-        }*/
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, userCode)) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数不符合条件");
         }
         if (userAccount.length() < 4) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数不符合条件");
         }
 
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数不符合条件");
         }
 
         if (userCode.length() < 1) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数不符合条件");
         }
 
         if (!userPassword.equals(checkPassword)) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数不符合条件");
         }
 
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数不符合条件");
         }
 
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUserCode, userCode);
         User user = this.getOne(wrapper);
-        /*int count = this.count(wrapper);
-        if (count == 0) {*/
         if (user != null) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.NULL_ERROR,"获取的数据为空");
         }
 
         LambdaQueryWrapper<User> wrapper2 = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUserAccount, userAccount);
         long count = this.count(wrapper2);
         if (count > 1) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"获取的对象错误");
         }
 
         //加密
@@ -98,7 +102,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user1.setUserAccount(userCode);
         boolean save = this.save(user1);
         if (!save) {
-            return R.error(ErrorCode.PARAMS_ERROR);
+            //return R.error(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"保存失败");
         }
         return R.success(user1.getId());
     }
@@ -119,21 +124,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
         }*/
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return R.error(ErrorCode.NULL_ERROR);
+            //return R.error(ErrorCode.NULL_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请求参数错误");
         }
         if (userAccount.length() < 4) {
-            return R.error(ErrorCode.NULL_ERROR);
+            //return R.error(ErrorCode.NULL_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请求参数错误");
         }
 
         if (userPassword.length() < 8) {
-            return R.error(ErrorCode.NULL_ERROR);
+            //return R.error(ErrorCode.NULL_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请求参数错误");
         }
 
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return R.error(ErrorCode.NULL_ERROR);
+            //return R.error(ErrorCode.NULL_ERROR);
+            throw new BusinessException(ErrorCode.NULL_ERROR,"请求参数错误");
         }
 
         //加密
@@ -146,7 +155,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = this.getOne(wrapper);
         if (user == null) {
             log.info("login error: userAccount cannot be find");
-            return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR,"请求对象不存在");
         }
 
         //脱敏
@@ -168,7 +177,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public User getSafetyUser(User originUser)
     {
         if (originUser == null) {
-            return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR,"请求对象不存在");
         }
         User newUser = new User();
         //设置返回的数据
@@ -195,7 +204,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
         if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
-            return R.error(ErrorCode.SYSTEM_ERROR);
+            //return R.error(ErrorCode.SYSTEM_ERROR);
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"权限不足");
         }
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(User::getUsername, name);
@@ -216,10 +226,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
         if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
-            return R.error(ErrorCode.NO_AUTH);
+            //return R.error(ErrorCode.NO_AUTH);
+            throw new BusinessException(ErrorCode.NOT_LOGIN,"权限不足");
         }
         if (id <= 0) {
-            return R.error(ErrorCode.NO_AUTH);
+            //return R.error(ErrorCode.NO_AUTH);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"对象不存在");
         }
         return R.success(this.removeById(id));
     }
@@ -254,7 +266,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;
         if (currentUser == null) {
-            return null;
+            //return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR,"对象不存在");
         }
         Long userId = currentUser.getId();
         User user = this.getById(userId);

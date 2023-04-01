@@ -68,9 +68,8 @@ public class UserController {
      * @return {@link List}<{@link User}>
      */
     @GetMapping("/search")
-    public List<User> search(String name){
-        List<User> list = userService.searchUser(name);
-        return list;
+    public List<User> search(String name ,HttpServletRequest request){
+        return userService.searchUser(name, request);
     }
 
 
@@ -78,11 +77,11 @@ public class UserController {
      * 删除用户
      *
      * @param id id
-     * @return {@link BaseResponse}<{@link Boolean}>
+     * @return {@link Boolean}
      */
     @DeleteMapping("/delete")
-    public Boolean deleteUser(@RequestBody long id) {
-        return userService.delete(id);
+    public Boolean deleteUser(@RequestBody long id, HttpServletRequest request) {
+        return userService.deleteUser(id, request);
     }
 
 

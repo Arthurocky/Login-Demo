@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.loki.Login.common.Basecontant.SALT;
-import static com.loki.Login.common.Basecontant.USER_LOGIN_STATE;
+import static com.loki.Login.common.Basecontant.*;
 
 /**
  * @author Arthurocky
@@ -174,21 +174,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public List<User> searchUser(String name)
+    public List<User> searchUser(String name, HttpServletRequest request)
     {
+        //仅管理员可查询
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
+            return new ArrayList<>();
+        }
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(User::getUsername, name);
-        List<User> list = this.list();
-        return list;
+        return this.list();
     }
 
     @Override
-    public Boolean delete(long id)
+    public Boolean deleteUser(long id ,HttpServletRequest request)
     {
+        //仅管理员可删除
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
+            return false;
+        }
         if (id <= 0) {
             return false;
         }
-        return this.delete(id);
+        return this.removeById(id);
     }
 
 }

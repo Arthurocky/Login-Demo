@@ -46,17 +46,19 @@ public interface UserService extends IService<User> {
     /**
      * 搜索用户
      *
-     * @param name 名字
+     * @param name    名字
+     * @param request 请求
      * @return 用户列表
      */
-    List<User> searchUser(String name);
+    List<User> searchUser(String name, HttpServletRequest request);
 
 
     /**
      * 删除
      *
-     * @param id id
+     * @param id      id
+     * @param request 请求
      * @return {@link Boolean}
      */
-    Boolean delete(long id);
+    Boolean deleteUser(long id ,HttpServletRequest request);
 }

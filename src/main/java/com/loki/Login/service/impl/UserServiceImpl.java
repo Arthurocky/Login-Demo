@@ -92,6 +92,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user1 = new User();
         user1.setUserAccount(userAccount);
         user1.setUserPassword(newPassword);
+        user1.setUserAccount(userCode);
         boolean save = this.save(user1);
         if (!save) {
             return -1;

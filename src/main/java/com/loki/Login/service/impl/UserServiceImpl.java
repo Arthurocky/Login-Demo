@@ -184,7 +184,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(User::getUsername, name);
-        return this.list();
+        List<User> users = this.list();
+        ArrayList<User> userArrayList = new ArrayList<>();
+        for (User user1 : users) {
+            this.getSafetyUser(user1);
+            user.setUserPassword(null);
+            userArrayList.add(user1);
+        }
+        return userArrayList;
     }
 
     @Override

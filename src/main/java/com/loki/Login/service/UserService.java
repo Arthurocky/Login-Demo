@@ -1,6 +1,7 @@
 package com.loki.Login.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.loki.Login.common.Result;
 import com.loki.Login.model.User;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,7 +23,7 @@ public interface UserService extends IService<User> {
      * @param userCode 用户编号
      * @return 新用户 id
      */
-    long userRegister(@Param("userAccount") String userAccount, @Param("userPassword") String userPassword, @Param("checkPassword") String checkPassword, @Param("userCode") String userCode);
+    Result<Long> userRegister(@Param("userAccount") String userAccount, @Param("userPassword") String userPassword, @Param("checkPassword") String checkPassword, @Param("userCode") String userCode);
 
 
     /**
@@ -32,7 +33,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return 脱敏后的用户信息
      */
-    User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    Result<User> userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
 
     /**
@@ -50,7 +51,7 @@ public interface UserService extends IService<User> {
      * @param request 请求
      * @return 用户列表
      */
-    List<User> searchUser(String name, HttpServletRequest request);
+    Result<List<User>> searchUser(String name, HttpServletRequest request);
 
 
     /**
@@ -60,7 +61,7 @@ public interface UserService extends IService<User> {
      * @param request 请求
      * @return {@link Boolean}
      */
-    Boolean deleteUser(long id ,HttpServletRequest request);
+    Result<Boolean> deleteUser(long id , HttpServletRequest request);
 
 
     /**
@@ -69,7 +70,7 @@ public interface UserService extends IService<User> {
      * @param request 请求
      * @return {@link Integer}
      */
-    int userLogout(HttpServletRequest request);
+    Result<Integer> userLogout(HttpServletRequest request);
 
     /**
      * 获取当前用户
@@ -77,5 +78,5 @@ public interface UserService extends IService<User> {
      * @param request 请求
      * @return {@link User}
      */
-    User getCurrentUser(HttpServletRequest request);
+    Result<User> getCurrentUser(HttpServletRequest request);
 }

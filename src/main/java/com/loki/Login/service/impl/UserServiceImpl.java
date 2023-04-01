@@ -2,9 +2,11 @@ package com.loki.Login.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.loki.Login.common.Result;
 import com.loki.Login.mapper.UserMapper;
 import com.loki.Login.model.User;
 import com.loki.Login.service.UserService;
+import com.loki.Login.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @param userCode      星球编号
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword, String userCode)
+    public Result<Long> userRegister(String userAccount, String userPassword, String checkPassword, String userCode)
     {
         //校验是否为空
         /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
@@ -97,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (!save) {
             return -1;
         }
-        return user1.getId();
+        return R.success(user1.getId());
     }
 
 
@@ -106,11 +108,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      *
      * @param userAccount  用户账户
      * @param userPassword 用户密码
-     * @param request
+     * @param request      请求
      * @return 脱敏后的用户信息
      */
     @Override
-    public User userLogin(String userAccount, String userPassword, HttpServletRequest request)
+    public Result<User> userLogin(String userAccount, String userPassword, HttpServletRequest request)
     {
         //校验是否为空
         /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
@@ -150,7 +152,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User safetyUser = getSafetyUser(user);
         //记录状态
         request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
-        return safetyUser;
+        return R.success(safetyUser);
 
     }
 
@@ -186,13 +188,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public List<User> searchUser(String name, HttpServletRequest request)
+    public Result<List<User>> searchUser(String name, HttpServletRequest request)
     {
         //仅管理员可查询
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
         if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
-            return new ArrayList<>();
+            return new ArrayList<User>();
         }
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(User::getUsername, name);
@@ -203,11 +205,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             user.setUserPassword(null);
             userArrayList.add(user1);
         }
-        return userArrayList;
+        return R.success(userArrayList);
     }
 
     @Override
-    public Boolean deleteUser(long id, HttpServletRequest request)
+    public Result<Boolean> deleteUser(long id, HttpServletRequest request)
     {
         //仅管理员可删除
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
@@ -218,7 +220,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (id <= 0) {
             return false;
         }
-        return this.removeById(id);
+        return R.success(this.removeById(id));
     }
 
     /**
@@ -228,7 +230,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return {@link Integer}
      */
     @Override
-    public int userLogout(HttpServletRequest request)
+    public Result<Integer> userLogout(HttpServletRequest request)
     {
         //移除登录
         request.getSession().removeAttribute(USER_LOGIN_STATE);
@@ -243,7 +245,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return {@link User}
      */
     @Override
-    public User getCurrentUser(HttpServletRequest request)
+    public Result<User> getCurrentUser(HttpServletRequest request)
     {
         if (request == null) {
             return null;
@@ -255,7 +257,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         Long userId = currentUser.getId();
         User user = this.getById(userId);
-        return this.getSafetyUser(user);
+        return R.success(this.getSafetyUser(user));
 
     }
 

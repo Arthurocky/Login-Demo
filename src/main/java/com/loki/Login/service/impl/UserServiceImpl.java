@@ -2,6 +2,7 @@ package com.loki.Login.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.loki.Login.common.ErrorCode;
 import com.loki.Login.common.Result;
 import com.loki.Login.mapper.UserMapper;
 import com.loki.Login.model.User;
@@ -45,29 +46,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
         }*/
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, userCode)) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
         if (userAccount.length() < 4) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         if (userCode.length() < 1) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         if (!userPassword.equals(checkPassword)) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
@@ -76,14 +77,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         /*int count = this.count(wrapper);
         if (count == 0) {*/
         if (user != null) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         LambdaQueryWrapper<User> wrapper2 = new LambdaQueryWrapper<>();
         wrapper.eq(User::getUserAccount, userAccount);
         long count = this.count(wrapper2);
         if (count > 1) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
 
         //加密
@@ -97,7 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user1.setUserAccount(userCode);
         boolean save = this.save(user1);
         if (!save) {
-            return -1;
+            return R.error(ErrorCode.PARAMS_ERROR);
         }
         return R.success(user1.getId());
     }
@@ -118,21 +119,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         /*if (StringUtils.isEmpty(userAccount)||StringUtils.isEmpty(userPassword)||StringUtils.isEmpty(checkPassword)||StringUtils.isEmpty(planetCode)){
         }*/
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            return R.error(ErrorCode.NULL_ERROR);
         }
         if (userAccount.length() < 4) {
-            return null;
+            return R.error(ErrorCode.NULL_ERROR);
         }
 
         if (userPassword.length() < 8) {
-            return null;
+            return R.error(ErrorCode.NULL_ERROR);
         }
 
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return null;
+            return R.error(ErrorCode.NULL_ERROR);
         }
 
         //加密
@@ -194,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
         if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
-            return new ArrayList<User>();
+            return R.error(ErrorCode.SYSTEM_ERROR);
         }
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(User::getUsername, name);
@@ -215,10 +216,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
         if (null == user || !user.getUserRole().equals(ADMIN_ROLE)) {
-            return false;
+            return R.error(ErrorCode.NO_AUTH);
         }
         if (id <= 0) {
-            return false;
+            return R.error(ErrorCode.NO_AUTH);
         }
         return R.success(this.removeById(id));
     }
@@ -234,7 +235,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     {
         //移除登录
         request.getSession().removeAttribute(USER_LOGIN_STATE);
-        return 1;
+        return R.success(null);
     }
 
 
